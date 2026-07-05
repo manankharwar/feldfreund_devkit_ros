@@ -82,4 +82,15 @@ fusioncore:
     imu.gyro_noise:   0.005
     imu.accel_noise:  0.1
     imu.frame_id:     imu_link
-    imu.has_magnetometer: true
+    # has_magnetometer=false: do NOT trust the gz-sim IMU orientation as an
+    # absolute yaw reference. With true, fusioncore fuses the IMU yaw as
+    # absolute (heading_source=IMU_ORIENTATION), but the gz-sim-imu orientation
+    # frame does not line up with the ENU frame fusioncore builds from the first
+    # GNSS fix, so the filter starts with a wrong heading and dead-reckoning
+    # then fights GNSS -> gnss_innovation_norm, encoder_outlier_count and
+    # position_sigma all climb and the estimate diverges (robot drives off).
+    # With false, fusioncore fuses only IMU roll/pitch and takes yaw from
+    # GNSS-track heading once the robot is moving (gnss.track_heading, on by
+    # default). This matches fusioncore_gazebo.yaml, the reference config that
+    # drives clean in Gazebo at ~0.4 m RMSE.
+    imu.has_magnetometer: false
